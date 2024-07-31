@@ -1,6 +1,6 @@
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import Column, Integer, String, ForeignKey, Date, Time, DateTime
-from sqlalchemy.orm import relationship
+from sqlalchemy.orm import relationship, validates
 from sqlalchemy_serializer import SerializerMixin
 from datetime import datetime
 
@@ -20,7 +20,22 @@ class User(db.Model, SerializerMixin):
     
     
     serialize_rules = ('-password',)  
+    
+    @validates('username')
+    def validate_username(self, key, username):
+        assert len(username) >= 5, "Username must be at least 5 characters long"
+        return username
 
+    @validates('email')
+    def validate_email(self, key, email):
+        assert '@' in email and '.' in email, "Invalid email address"
+        return email
+
+    @validates('password')
+    def validate_password(self, key, password):
+        assert len(password) >= 6, "Password must be at least 6 characters long"
+        return password
+      
 class Itinerary(db.Model, SerializerMixin):
     __tablename__ = 'itineraries'
     
@@ -40,6 +55,17 @@ class Itinerary(db.Model, SerializerMixin):
     
     serialize_rules = ('-user.password',) 
 
+    
+    @validates('name')
+    def validate_name(self, key, name):
+        assert len(name) > 0, "Name cannot be empty"
+        return name
+
+    @validates('start_date', 'end_date')
+    def validate_dates(self, key, date):
+        assert isinstance(date, datetime.date), f"{key} must be a valid date"
+        return date
+
 class Activity(db.Model, SerializerMixin):
     __tablename__ = 'activities'
     
@@ -55,6 +81,21 @@ class Activity(db.Model, SerializerMixin):
     
     
     serialize_rules = ('-itinerary.bookings',) 
+    
+    @validates('name')
+    def validate_name(self, key, name):
+        assert len(name) > 0, "Name cannot be empty"
+        return name
+
+    @validates('date')
+    def validate_date(self, key, date):
+        assert isinstance(date, datetime.date), "Date must be a valid date"
+        return date
+
+    @validates('time')
+    def validate_time(self, key, time):
+        assert isinstance(time, datetime.time), "Time must be a valid time"
+        return time
 
 class Booking(db.Model, SerializerMixin):
     __tablename__ = 'bookings'
@@ -66,6 +107,11 @@ class Booking(db.Model, SerializerMixin):
     
     
     serialize_rules = ('-itinerary.activities', '-activity',)  
+    
+    @validates('booking_details')
+    def validate_booking_details(self, key, booking_details):
+        assert len(booking_details) > 0, "Booking details cannot be empty"
+        return booking_details
 
 class TravelJournal(db.Model, SerializerMixin):
     __tablename__ = 'traveljournals'
@@ -83,6 +129,16 @@ class TravelJournal(db.Model, SerializerMixin):
     
     
     serialize_rules = ('-user.password',) 
+    
+    @validates('title')
+    def validate_title(self, key, title):
+        assert len(title) > 0, "Title cannot be empty"
+        return title
+
+    @validates('content')
+    def validate_content(self, key, content):
+        assert len(content) > 0, "Content cannot be empty"
+        return content
 
 journal_shares = db.Table('journal_shares',
     db.Column('journal_id', db.Integer, db.ForeignKey('traveljournals.id')),
