@@ -1,7 +1,7 @@
 from flask import Flask
 from models import db, Booking, Itinerary, TravelJournal, Activity, User
 import random
-from flask import Blueprint, request, jsonify
+from flask import  request, jsonify
 from flask_migrate import Migrate
 from flask_restful import Api
 from flask_bcrypt import Bcrypt
