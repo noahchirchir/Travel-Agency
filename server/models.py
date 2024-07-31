@@ -35,6 +35,7 @@ class User(db.Model, SerializerMixin):
     def validate_password(self, key, password):
         assert len(password) >= 6, "Password must be at least 6 characters long"
         return password
+      
 class Itinerary(db.Model, SerializerMixin):
     __tablename__ = 'itineraries'
     
@@ -53,6 +54,7 @@ class Itinerary(db.Model, SerializerMixin):
     
     
     serialize_rules = ('-user.password',) 
+
     
     @validates('name')
     def validate_name(self, key, name):
