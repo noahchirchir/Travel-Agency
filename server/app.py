@@ -79,12 +79,13 @@ def get_current_user():
     current_user = User.query.get(current_user_id)
 
     if current_user:
-        return jsonify({"id":current_user.id, "name":current_user.name, "email":current_user.email}), 200
+        return jsonify({"id":current_user.id, "username":current_user.username, "email":current_user.email}), 200
     else:
         jsonify({"error":"User not found"}), 404
 
 
 BLACKLIST = set()
+
 @jwt.token_in_blocklist_loader
 def check_if_token_in_blocklist(jwt_header, decrypted_token):
     return decrypted_token['jti'] in BLACKLIST
@@ -103,40 +104,69 @@ def logout():
 @app.route('/users', methods=['POST'])
 def create_user():
     data = request.get_json()
-    new_user = User(name=data['name'], email=data['email'], password=bcrypt.generate_password_hash( data['password'] ).decode("utf-8") ) 
+    new_user = User(name=data['username'], email=data['email'], password=bcrypt.generate_password_hash( data['password'] ).decode("utf-8") ) 
     db.session.add(new_user)
     db.session.commit()
     return jsonify({'success': 'User created successfully'}), 201
+
+@app.route('/users', methods=['GET'])
+def get_all_users():
+    users = User.query.all()
+    return jsonify([{
+        'id': user.id,
+        'name': user.username,
+        'email': user.email
+    } for user in users]), 200
 
 
 @app.route('/users/<int:user_id>', methods=['GET'])
 def get_user(user_id):
     user = User.query.get_or_404(user_id)
-    return jsonify({'id': user.id, 'name': user.name, 'email': user.email})
+    return jsonify({'id': user.id, 'username': user.username, 'email': user.email})
 
 
 @app.route('/users/<int:user_id>', methods=['PUT'])
-
 def update_user(user_id):
     user = User.query.get_or_404(user_id)
     data = request.get_json()
 
-    user.name = data['name']
+    user.username = data['username']
     user.email = data['email']
     db.session.commit()
     return jsonify({'message': 'User updated successfully'})
+
 @app.route('/itineraries', methods=['POST'])
-@jwt_required()
 def create_itinerary():
     data = request.get_json()
-    current_user = get_jwt_identity()
-    new_itinerary = Itinerary(name=data['name'], description=data['description'], start_date=data['start_date'], end_date=data['end_date'], user_id=current_user['id'])
+    # current_user = get_jwt_identity()
+    new_itinerary = Itinerary(name=data['name'], description=data['description'], start_date=data['start_date'], end_date=data['end_date'])
     db.session.add(new_itinerary)
     db.session.commit()
     return jsonify({'message': 'Itinerary created successfully'}), 201
 
+@app.route('/itineraries', methods=['GET'])
+def get_all_itineraries():
+    # current_user_id = get_jwt_identity()
+    itineraries = Itinerary.query.all()
+    return jsonify([{
+        'id': itinerary.id,
+        'name': itinerary.name,
+        'description': itinerary.description,
+        'start_date': itinerary.start_date.isoformat(),
+        'end_date': itinerary.end_date.isoformat(),
+        'activities': [
+            {
+                'id': activity.id,
+                'name': activity.name,
+                'description': activity.description,
+                'date': activity.date.isoformat(),
+                'time': activity.time.strftime('%H:%M:%S') if activity.time else None
+            } for activity in itinerary.activities
+        ]
+    } for itinerary in itineraries]), 200
+
+
 @app.route('/itineraries/<int:id>', methods=['PUT'])
-@jwt_required()
 def update_itinerary(id):
     data = request.get_json()
     itinerary = Itinerary.query.get_or_404(id)
@@ -148,28 +178,42 @@ def update_itinerary(id):
     return jsonify({'message': 'Itinerary updated successfully'}), 200
 
 @app.route('/itineraries/<int:id>', methods=['DELETE'])
-@jwt_required()
 def delete_itinerary(id):
     itinerary = Itinerary.query.get_or_404(id)
     db.session.delete(itinerary)
     db.session.commit()
     return jsonify({'message': 'Itinerary deleted successfully'}), 200
 
+# @app.route('/itineraries/<int:id>', methods=['GET'])
+# def get_itinerary(id):
+#     itinerary = Itinerary.query.get_or_404(id)
+#     return jsonify({
+#         'id': itinerary.id,
+#         'name': itinerary.name,
+#         'description': itinerary.description,
+#         'start_date': itinerary.start_date,
+#         'end_date': itinerary.end_date,
+#         'activities': [{'id': a.id, 'name': a.name, 'description': a.description, 'date': a.date, 'time': a.time} for a in itinerary.activities]
+#     }), 200
 @app.route('/itineraries/<int:id>', methods=['GET'])
-@jwt_required()
 def get_itinerary(id):
     itinerary = Itinerary.query.get_or_404(id)
     return jsonify({
         'id': itinerary.id,
         'name': itinerary.name,
         'description': itinerary.description,
-        'start_date': itinerary.start_date,
-        'end_date': itinerary.end_date,
-        'activities': [{'id': a.id, 'name': a.name, 'description': a.description, 'date': a.date, 'time': a.time} for a in itinerary.activities]
+        'start_date': itinerary.start_date.isoformat(),
+        'end_date': itinerary.end_date.isoformat(),
+        'activities': [{
+            'id': a.id,
+            'name': a.name,
+            'description': a.description,
+            'date': a.date.isoformat() if a.date else None,
+            'time': a.time.strftime('%H:%M:%S') if a.time else None
+        } for a in itinerary.activities]
     }), 200
 
 @app.route('/itineraries/<int:id>/activities', methods=['POST'])
-@jwt_required()
 def add_activity_to_itinerary(id):
     data = request.get_json()
     new_activity = Activity(name=data['name'], description=data['description'], date=data['date'], time=data['time'], itinerary_id=id)
@@ -178,7 +222,7 @@ def add_activity_to_itinerary(id):
     return jsonify({'message': 'Activity added to itinerary successfully'}), 201
 
 @app.route('/bookings', methods=['POST'])
-@jwt_required()
+
 def add_booking():
     data = request.get_json()
     new_booking = Booking(itinerary_id=data['itinerary_id'], activity_id=data['activity_id'], booking_details=data['booking_details'])
@@ -186,8 +230,17 @@ def add_booking():
     db.session.commit()
     return jsonify({'message': 'Booking added successfully'}), 201
 
+@app.route('/bookings', methods=['GET'])
+def get_all_bookings():
+    bookings = Booking.query.all()
+    return jsonify([{
+        'id': booking.id,
+        'itinerary_id': booking.itinerary_id,
+        'activity_id': booking.activity_id,
+        'booking_details': booking.booking_details
+    } for booking in bookings]), 200
+
 @app.route('/bookings/<int:id>', methods=['PUT'])
-@jwt_required()
 def update_booking(id):
     data = request.get_json()
     booking = Booking.query.get_or_404(id)
@@ -196,7 +249,7 @@ def update_booking(id):
     return jsonify({'message': 'Booking updated successfully'}), 200
 
 @app.route('/bookings/<int:id>', methods=['DELETE'])
-@jwt_required()
+
 def delete_booking(id):
     booking = Booking.query.get_or_404(id)
     db.session.delete(booking)
@@ -204,7 +257,7 @@ def delete_booking(id):
     return jsonify({'message': 'Booking deleted successfully'}), 200
 
 @app.route('/bookings/<int:id>', methods=['GET'])
-@jwt_required()
+
 def get_booking(id):
     booking = Booking.query.get_or_404(id)
     return jsonify({
@@ -213,9 +266,9 @@ def get_booking(id):
         'activity_id': booking.activity_id,
         'booking_details': booking.booking_details
     }), 200
-    
+
+  
 @app.route('/journals', methods=['POST'])
-@jwt_required()
 def create_journal_entry():
     data = request.get_json()
     current_user = get_jwt_identity()
@@ -225,7 +278,6 @@ def create_journal_entry():
     return jsonify({'message': 'Journal entry created successfully'}), 201
 
 @app.route('/journals/<int:id>', methods=['PUT'])
-@jwt_required()
 def update_journal_entry(id):
     data = request.get_json()
     entry = TravelJournal.query.get_or_404(id)
@@ -235,7 +287,6 @@ def update_journal_entry(id):
     return jsonify({'message': 'Journal entry updated successfully'}), 200
 
 @app.route('/journals/<int:id>', methods=['DELETE'])
-@jwt_required()
 def delete_journal_entry(id):
     entry = TravelJournal.query.get_or_404(id)
     db.session.delete(entry)
@@ -243,7 +294,6 @@ def delete_journal_entry(id):
     return jsonify({'message': 'Journal entry deleted successfully'}), 200
 
 @app.route('/journals/<int:id>', methods=['GET'])
-@jwt_required()
 def get_journal_entry(id):
     entry = TravelJournal.query.get_or_404(id)
     return jsonify({
@@ -254,20 +304,18 @@ def get_journal_entry(id):
     }), 200
 
 @app.route('/journals/share/<int:id>', methods=['POST'])
-@jwt_required()
 def share_journal_entry(id):
     data = request.get_json()
     entry = TravelJournal.query.get_or_404(id)
-    users = User.query.filter(User.id.in_(data['shared_with'])).all()
+    users = User.query.all()
     entry.shared_with.extend(users)
     db.session.commit()
     return jsonify({'message': 'Journal entry shared successfully'}), 200
 
 @app.route('/journals/shared', methods=['GET'])
-@jwt_required()
 def get_shared_journals():
-    current_user = get_jwt_identity()
-    user = User.query.filter_by(id=current_user['id']).first()
+    # current_user = get_jwt_identity()
+    user = User.query.first()
     shared_entries = user.shared_journals
 
     return jsonify([{
