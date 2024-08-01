@@ -1,8 +1,14 @@
 from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy import Column, Integer, String, ForeignKey, Date, Time, DateTime
+from sqlalchemy import MetaData,  Column, Integer, String, ForeignKey, Date, Time, DateTime
 from sqlalchemy.orm import relationship, validates
 from sqlalchemy_serializer import SerializerMixin
 from datetime import datetime
+
+metadata = MetaData(
+    naming_convention={
+        "fk": "fk_%(table_name)s_%(column_0_name)s_%(referred_table_name)s",
+    }
+)
 
 db = SQLAlchemy()
 
@@ -35,6 +41,9 @@ class User(db.Model, SerializerMixin):
     def validate_password(self, key, password):
         assert len(password) >= 6, "Password must be at least 6 characters long"
         return password
+    
+    def __repr__(self):
+        return f"<User(id={self.id}, username='{self.username}', email='{self.email}')>"
       
 class Itinerary(db.Model, SerializerMixin):
     __tablename__ = 'itineraries'
@@ -65,6 +74,10 @@ class Itinerary(db.Model, SerializerMixin):
     def validate_dates(self, key, date):
         assert isinstance(date, datetime.date), f"{key} must be a valid date"
         return date
+    
+    def __repr__(self):
+        return f"<Itinerary(id={self.id}, name='{self.name}', start_date='{self.start_date}', end_date='{self.end_date}')>"
+
 
 class Activity(db.Model, SerializerMixin):
     __tablename__ = 'activities'
@@ -96,6 +109,10 @@ class Activity(db.Model, SerializerMixin):
     def validate_time(self, key, time):
         assert isinstance(time, datetime.time), "Time must be a valid time"
         return time
+    
+    def __repr__(self):
+        return f"<Activity(id={self.id}, name='{self.name}', date='{self.date}', time='{self.time}')>"
+
 
 class Booking(db.Model, SerializerMixin):
     __tablename__ = 'bookings'
@@ -112,6 +129,9 @@ class Booking(db.Model, SerializerMixin):
     def validate_booking_details(self, key, booking_details):
         assert len(booking_details) > 0, "Booking details cannot be empty"
         return booking_details
+    def __repr__(self):
+        return f"<Booking(id={self.id}, itinerary_id={self.itinerary_id}, activity_id={self.activity_id}, booking_details='{self.booking_details}')>"
+
 
 class TravelJournal(db.Model, SerializerMixin):
     __tablename__ = 'traveljournals'
@@ -139,6 +159,10 @@ class TravelJournal(db.Model, SerializerMixin):
     def validate_content(self, key, content):
         assert len(content) > 0, "Content cannot be empty"
         return content
+    
+    def __repr__(self):
+        return f"<TravelJournal(id={self.id}, title='{self.title}', date='{self.date}')>"
+
 
 journal_shares = db.Table('journal_shares',
     db.Column('journal_id', db.Integer, db.ForeignKey('traveljournals.id')),
