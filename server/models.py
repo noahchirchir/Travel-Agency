@@ -80,7 +80,7 @@ class Activity(db.Model, SerializerMixin):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), nullable=False)
     description = db.Column(db.String(200))
-    datetime = db.Column(db.DateTime, nullable=False)  # Single column for datetime
+    datetime = db.Column(db.DateTime, nullable=False)  
     created_at = db.Column(db.DateTime, server_default=db.func.now())
     updated_at = db.Column(db.DateTime, onupdate=db.func.now())
     
