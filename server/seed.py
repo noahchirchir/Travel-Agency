@@ -64,7 +64,7 @@ def populate_db():
             ),
             Itinerary(
                 name="Maasai Mara Safari",
-                description="A 4-day safari in Maasai Mara, experiencing the Great Migration and diverse wildlife.",
+                description="A  4-daysafari in Maasai Mara, experiencing the Great Migration and diverse wildlife.",
                 start_date=datetime.now().date() + timedelta(days=40),
                 end_date=datetime.now().date() + timedelta(days=44),
                 user_id=random.choice(users).id
