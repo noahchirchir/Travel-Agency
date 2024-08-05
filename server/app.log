@@ -46,3 +46,8 @@
 2024-08-05 18:45:07,286 INFO: App startup [in /home/alex/Documents/phase5/Travel-Agency/server/app.py:41]
 2024-08-05 18:45:12,798 INFO: App startup [in /home/alex/Documents/phase5/Travel-Agency/server/app.py:41]
 2024-08-05 18:46:29,677 INFO: App startup [in /home/alex/Documents/phase5/Travel-Agency/server/app.py:41]
+2024-08-05 19:43:30,140 INFO: App startup [in app.py:45]
+2024-08-05 19:43:30,970 INFO: App startup [in /home/noah/Documents/Phase5Project/Travel-Agency/server/app.py:45]
+2024-08-05 19:48:27,199 INFO: Index page accessed [in /home/noah/Documents/Phase5Project/Travel-Agency/server/app.py:50]
+2024-08-05 19:48:28,387 INFO: Index page accessed [in /home/noah/Documents/Phase5Project/Travel-Agency/server/app.py:50]
+2024-08-05 19:48:32,321 INFO: Fetched all users [in /home/noah/Documents/Phase5Project/Travel-Agency/server/app.py:107]
