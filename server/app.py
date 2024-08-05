@@ -8,6 +8,10 @@ from datetime import timedelta, datetime
 from flask_cors import CORS
 import random
 import os
+from dotenv import load_dotenv
+
+# Load environment variables
+load_dotenv()
 
 app = Flask(__name__)
 CORS(app)
