@@ -23,7 +23,7 @@ function JournalPage() {
       method: "DELETE",
     })
       .then(() => {
-        // Redirect to the list page or show a confirmation message
+        // Redirect to the list page
         navigate("/journals");
       })
       .catch((error) => {
