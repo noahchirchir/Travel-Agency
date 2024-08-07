@@ -8,20 +8,15 @@ function Booking() {
   const [bookings, setBookings] = useState([]);
 
   useEffect(() => {
-    const token = localStorage.getItem("access_token"); // or get the token from wherever you're storing it
+    // const token = localStorage.getItem("access_token");
 
-    fetch("http://127.0.0.1:5555/bookings", {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    })
+    fetch("http://127.0.0.1:5555/bookings")
       .then((response) => response.json())
       .then((data) => setBookings(data))
       .catch((error) => {
         console.error("Error:", error);
       });
   }, []);
-
 
   const handleSearch = (e) => {
     setSearchQuery(e.target.value);
@@ -42,10 +37,7 @@ function Booking() {
         </div>
         <div className="flex items-center justify-center mt-10">
           <Link to="/add-booking">
-            <button
-              className="bg-lime-900 text-white py-2 px-5 rounded-full
-                hover:bg-lime-800 transition duration-300 ease-in-out text-lg ml-4"
-            >
+            <button className="bg-lime-900 text-white py-2 px-5 rounded-full hover:bg-lime-800 transition duration-300 ease-in-out text-lg ml-4">
               Add booking
             </button>
           </Link>
