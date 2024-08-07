@@ -8,7 +8,13 @@ function Itinerary() {
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    fetch("http://127.0.0.1:5555/itineraries")
+    const token = localStorage.getItem("access_token");
+
+    fetch("http://127.0.0.1:5555/itineraries", {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    })
       .then((response) => response.json())
       .then((data) => setItineraries(data))
       .catch((error) => setError(error.message));

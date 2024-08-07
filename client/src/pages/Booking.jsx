@@ -8,9 +8,13 @@ function Booking() {
   const [bookings, setBookings] = useState([]);
 
   useEffect(() => {
-    // const token = localStorage.getItem("access_token");
+    const token = localStorage.getItem("access_token");
 
-    fetch("http://127.0.0.1:5555/bookings")
+    fetch("http://127.0.0.1:5555/bookings", {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    })
       .then((response) => response.json())
       .then((data) => setBookings(data))
       .catch((error) => {
