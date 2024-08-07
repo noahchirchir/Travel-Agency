@@ -82,7 +82,13 @@ function Journal() {
 
 
   useEffect(() => {
-    fetch("http://127.0.0.1:5555/journals/shared")
+    const token = localStorage.getItem("access_token");
+
+    fetch("http://127.0.0.1:5555/journals/shared", {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    })
       .then((response) => response.json())
       .then((data) => setEntries(data));
   }, [])
@@ -100,7 +106,7 @@ function Journal() {
           </button>
           </Link>
         </div>
-        <div className="mt-10 grid grid-cols-1 gap-8 pb-20 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 px-24">
+        <div className="mt-10 grid grid-cols-1 gap-8 pb-20 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 px-24 h-screen">
           {entries.map((journal) => (
             <div
               key={journal.id}
