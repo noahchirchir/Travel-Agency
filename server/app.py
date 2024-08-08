@@ -93,7 +93,7 @@ def logout():
     app.logger.info('User logged out')
     return jsonify({"success": "Successfully logged out"}), 200
 
-@app.route('/users', methods=['POST'])
+@app.route('/register', methods=['POST'])
 def create_user():
     data = request.get_json()
     new_user = User(username=data['username'], email=data['email'], password=bcrypt.generate_password_hash(data['password']).decode("utf-8"))
@@ -179,7 +179,7 @@ def create_itinerary():
 @jwt_required()
 def get_all_itineraries():
     current_user_id = get_jwt_identity()
-    itineraries = Itinerary.query.all()
+    itineraries = Itinerary.query.filter_by(user_id=current_user_id).all()
     app.logger.info('Fetched all itineraries')
     return jsonify([
         {
@@ -305,7 +305,8 @@ def get_booking(id):
 @app.route('/bookings', methods=['GET'])
 @jwt_required()
 def get_all_bookings():
-    bookings = Booking.query.all()
+    current_user_id = get_jwt_identity()
+    bookings = Booking.query.filter_by(user_id=current_user_id).all()
     app.logger.info(f'Fetched all bookings')
     return jsonify([{
         'id': booking.id,
