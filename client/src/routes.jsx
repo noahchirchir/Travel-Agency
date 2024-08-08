@@ -13,7 +13,8 @@ import JournalForm from "./pages/JournalForm";
 import ItineraryForm from "./pages/ItineraryForm";
 import BookingForm from "./pages/BookingForm";
 import ErrorPage from "./pages/ErrorPage";
-import ItineraryPage from "./pages/ItineraryPage";
+// import ItineraryPage from "./pages/ItineraryPage";
+import TripDetails from "./pages/TripDetails";
 
 
 const routes = [
@@ -88,9 +89,9 @@ const routes = [
     errorElement: <ErrorPage />
   },
   {
-    path: "/itineraries:id",
-    element: <ItineraryPage />,
+    path: "/itineraries/:id",
+    element: <TripDetails />,
     errorElement: <ErrorPage />
-  }
+  },
 ];
 export default routes;

@@ -1,3 +1,5 @@
+// TODO: turn this page to a details page for my trips
+
 export const TripCard = ({ trip }) => (
   <div className="bg-white p-4 rounded-lg shadow-md mb-4">
     <img src={trip.image} alt={trip.destination} className="w-full h-48 object-cover rounded-lg mb-2" />

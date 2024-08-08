@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
 import NavBar from "../components/NavBar";
 import Footer from "../components/Footer";
-import { Link } from "react-router-dom";
 
 function Itinerary() {
   const [itineraries, setItineraries] = useState([]);
@@ -30,6 +30,23 @@ function Itinerary() {
     );
   };
 
+  const handleDelete = (id) => {
+    const token = localStorage.getItem("access_token");
+
+    fetch(`http://127.0.0.1:5555/itineraries/${id}`, {
+      method: "DELETE",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    })
+      .then(() => {
+        setItineraries(itineraries.filter((itinerary) => itinerary.id !== id));
+      })
+      .catch((error) => {
+        setError(error.message);
+      });
+  };
+
   if (error) {
     return <div className="p-4 text-red-500">Error: {error}</div>;
   }
@@ -41,11 +58,8 @@ function Itinerary() {
         <div className="flex justify-between mb-5">
           <h1 className="text-2xl font-bold mb-4">Itineraries</h1>
           <Link to="/add-itinerary">
-            <button
-              className="bg-lime-900 text-white py-2 px-5 rounded-full
-                hover:bg-lime-800 transition duration-300 ease-in-out text-lg ml-4"
-            >
-              New itinerary
+            <button className="bg-lime-900 text-white py-2 px-5 rounded-full hover:bg-lime-800 transition duration-300 ease-in-out text-lg ml-4">
+              New Itinerary
             </button>
           </Link>
         </div>
@@ -65,7 +79,7 @@ function Itinerary() {
                 <h2 className="text-xl font-semibold">{itinerary.name}</h2>
                 <p className="text-gray-600">{itinerary.description}</p>
                 <p className="text-gray-400">
-                  Start Date:
+                  Start Date:{" "}
                   {new Date(itinerary.start_date).toLocaleDateString()}
                 </p>
                 <p className="text-gray-400">
@@ -84,10 +98,11 @@ function Itinerary() {
                             </p>
                             <p className="text-gray-400">
                               Date:{" "}
-                              {new Date(activity.date).toLocaleDateString()}
+                              {new Date(activity.datetime).toLocaleDateString()}
                             </p>
                             <p className="text-gray-400">
-                              Time: {activity.time}
+                              Time:{" "}
+                              {new Date(activity.datetime).toLocaleTimeString()}
                             </p>
                           </li>
                         ))}
@@ -95,6 +110,20 @@ function Itinerary() {
                     </div>
                   )}
                 </div>
+              </div>
+              <div className="ml-4 flex space-x-2">
+                {/* edit itinerary form yet to be created */}
+                <Link to={`/edit-itinerary/${itinerary.id}`}>
+                  <button className="bg-lime-900 text-white py-2 px-4 rounded hover:bg-lime-700 transition duration-300 ease-in-out">
+                    Edit
+                  </button>
+                </Link>
+                <button
+                  className="bg-red-500 text-white py-1 px-4 rounded hover:bg-red-400 transition"
+                  onClick={() => handleDelete(itinerary.id)}
+                >
+                  Delete
+                </button>
               </div>
             </li>
           ))}
