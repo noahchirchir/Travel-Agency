@@ -7,17 +7,18 @@ import NavBar from "../components/NavBar";
 function JournalForm() {
   const navigate = useNavigate();
 
+  // Update formik to use entry_date instead of date
   const formik = useFormik({
     initialValues: {
       title: "",
       content: "",
-      date: "",
+      entry_date: "", // Changed from date to entry_date
       created_at: new Date().toISOString().split("T")[0],
     },
     validationSchema: Yup.object({
       title: Yup.string().required("Title is required"),
       content: Yup.string().required("Content is required"),
-      date: Yup.date().required("Date is required").nullable(),
+      entry_date: Yup.date().required("Date is required").nullable(), // Changed from date to entry_date
     }),
     onSubmit: (values) => {
       // JWT token
@@ -29,7 +30,11 @@ function JournalForm() {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify(values),
+        body: JSON.stringify({
+          ...values,
+          // Pass the correct field name
+          date: values.entry_date, // Update field name in request
+        }),
       })
         .then((response) => {
           if (response.ok) {
@@ -106,24 +111,24 @@ function JournalForm() {
 
           <div className="mb-4">
             <label
-              htmlFor="date"
+              htmlFor="entry_date" // Updated field name
               className="block text-sm font-medium text-gray-700"
             >
               Date
             </label>
             <input
-              id="date"
+              id="entry_date" // Updated field name
               type="date"
-              {...formik.getFieldProps("date")}
+              {...formik.getFieldProps("entry_date")} // Updated field name
               className={`mt-1 block w-full p-2 border rounded-lg ${
-                formik.touched.date && formik.errors.date
+                formik.touched.entry_date && formik.errors.entry_date // Updated field name
                   ? "border-red-500"
                   : "border-gray-300"
               }`}
             />
-            {formik.touched.date && formik.errors.date ? (
+            {formik.touched.entry_date && formik.errors.entry_date ? ( // Updated field name
               <div className="text-red-500 text-sm mt-1">
-                {formik.errors.date}
+                {formik.errors.entry_date} 
               </div>
             ) : null}
           </div>

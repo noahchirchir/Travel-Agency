@@ -84,7 +84,7 @@ function Journal() {
   useEffect(() => {
     const token = localStorage.getItem("access_token");
 
-    fetch("http://127.0.0.1:5555/journals/shared", {
+    fetch("http://127.0.0.1:5555/journals", {
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -96,7 +96,7 @@ function Journal() {
   return (
     <>
       <NavBar />
-      <div>
+      <div className="h-screen">
         <h1 className="text-center text-4xl mt-12">Journal</h1>
         <div className="flex justify-between px-72 space-x-10 mt-12">
           <h2 className="text-2xl">My entries</h2>
@@ -106,7 +106,7 @@ function Journal() {
           </button>
           </Link>
         </div>
-        <div className="mt-10 grid grid-cols-1 gap-8 pb-20 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 px-24 h-screen">
+        <div className="mt-10 grid grid-cols-1 gap-8 pb-20 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 px-24">
           {entries.map((journal) => (
             <div
               key={journal.id}
