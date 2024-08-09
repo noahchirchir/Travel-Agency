@@ -305,8 +305,8 @@ def get_booking(id):
 @app.route('/bookings', methods=['GET'])
 @jwt_required()
 def get_all_bookings():
-    current_user_id = get_jwt_identity()
-    bookings = Booking.query.filter_by(user_id=current_user_id).all()
+    # current_user_id = get_jwt_identity()
+    bookings = Booking.query.all()
     app.logger.info(f'Fetched all bookings')
     return jsonify([{
         'id': booking.id,
