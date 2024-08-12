@@ -32,6 +32,20 @@ const ItineraryForm = () => {
       ),
     }),
     onSubmit: (values) => {
+      // Format activities to match backend structure
+      const formattedActivities = values.activities.map((activity) => ({
+        ...activity,
+        datetime: `${activity.date}T${activity.time}`, // Combine date and time into datetime
+      }));
+
+      // Prepare data for submission
+      const dataToSubmit = {
+        ...values,
+        start_date: `${values.start_date}T00:00:00`, // Add time part to dates
+        end_date: `${values.end_date}T00:00:00`,
+        activities: formattedActivities,
+      };
+
       // JWT token
       const token = localStorage.getItem("access_token");
 
@@ -41,12 +55,12 @@ const ItineraryForm = () => {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify(values),
+        body: JSON.stringify(dataToSubmit),
       })
         .then((response) => {
           if (response.ok) {
             alert("Itinerary submitted successfully!");
-            navigate("/itineraries"); // Navigate to the itineraries list
+            navigate("/itinerary"); 
           } else {
             alert("Failed to submit itinerary.");
           }
@@ -271,7 +285,7 @@ const ItineraryForm = () => {
 
           <button
             type="submit"
-            className="bg-green-500 text-white py-2 px-4 rounded hover:bg-green-400 transition duration-300 ease-in-out"
+            className="bg-lime-900 text-white px-4 py-2 rounded w-full"
           >
             Submit
           </button>

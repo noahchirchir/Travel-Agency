@@ -1,6 +1,7 @@
 import { useParams, useNavigate } from "react-router-dom";
 import NavBar from "../components/NavBar";
 import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 
 function JournalPage() {
   const { id } = useParams();
@@ -64,12 +65,14 @@ function JournalPage() {
         <h3 className="text-xl text-gray-600 mb-4">{journal.entry_date}</h3>
         <p className="text-lg mb-6">{journal.content}</p>
         <div className="flex space-x-4">
+          <Link to={`/journals/edit/${id}`}>
           <button
             className="bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-400 transition"
             onClick={handleEdit}
           >
             Edit
           </button>
+          </Link>
           <button
             className="bg-red-500 text-white py-2 px-4 rounded hover:bg-red-400 transition"
             onClick={handleDelete}
