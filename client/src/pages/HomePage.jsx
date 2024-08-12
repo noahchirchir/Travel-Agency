@@ -23,12 +23,12 @@ function HomePage() {
           What would you like to do today?
         </h2>
         <div className="flex justify-evenly">
-          <Link to="/bookings">
+          <Link to="/trips">
             <button
               className="bg-lime-900 text-white py-2 px-5 rounded-full
         hover:bg-lime-800 dark:hover:bg-lime-700 transition duration-300 ease-in-out mt-10 text-lg"
             >
-              Plan a trip
+              My Trips
             </button>
           </Link>
           <Link to="/itinerary">

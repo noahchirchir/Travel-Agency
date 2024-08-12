@@ -11,7 +11,13 @@ function EditItinerary() {
     description: "",
     start_date: "",
     end_date: "",
-    activities: [], // Added activities to state
+    activities: [],
+  });
+  const [newActivity, setNewActivity] = useState({
+    name: "",
+    description: "",
+    date: "",
+    time: "",
   });
   const [error, setError] = useState(null);
 
@@ -36,33 +42,55 @@ function EditItinerary() {
     });
   };
 
-  const handleActivityChange = (index, e) => {
+  const handleNewActivityChange = (e) => {
     const { name, value } = e.target;
-    const updatedActivities = itinerary.activities.map((activity, i) =>
-      i === index ? { ...activity, [name]: value } : activity
-    );
-    setItinerary({
-      ...itinerary,
-      activities: updatedActivities,
+    setNewActivity({
+      ...newActivity,
+      [name]: value,
     });
   };
 
   const handleAddActivity = () => {
-    setItinerary({
-      ...itinerary,
-      activities: [
-        ...itinerary.activities,
-        { name: "", description: "", datetime: "" },
-      ],
-    });
+    const token = localStorage.getItem("access_token");
+
+    fetch(`http://127.0.0.1:5555/itineraries/${id}/activities`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(newActivity),
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        if (data.message === "Activity added to itinerary successfully") {
+
+          setNewActivity({
+            name: "",
+            description: "",
+            date: "",
+            time: "",
+          });
+          return fetch(`http://127.0.0.1:5555/itineraries/${id}`, {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          });
+        } else {
+          throw new Error(data.message);
+        }
+      })
+      .then((response) => response.json())
+      .then((data) => {
+        setItinerary(data)
+        navigate('/itinerary')
+      })
+      .catch((error) => {
+        console.error("Error adding activity:", error);
+        setError(error.message);
+      });
   };
 
-  const handleRemoveActivity = (index) => {
-    setItinerary({
-      ...itinerary,
-      activities: itinerary.activities.filter((_, i) => i !== index),
-    });
-  };
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -77,7 +105,7 @@ function EditItinerary() {
       body: JSON.stringify(itinerary),
     })
       .then(() => {
-        navigate("/itineraries");
+        navigate("/itinerary");
       })
       .catch((error) => setError(error.message));
   };
@@ -152,66 +180,84 @@ function EditItinerary() {
             <h2 className="text-xl font-semibold mb-2">Activities</h2>
             {itinerary.activities.map((activity, index) => (
               <div key={index} className="border p-4 rounded mb-4">
-                <button
-                  type="button"
-                  className="bg-red-500 text-white py-1 px-2 rounded hover:bg-red-400 transition mb-2"
-                  onClick={() => handleRemoveActivity(index)}
-                >
-                  Remove Activity
-                </button>
                 <div>
-                  <label
-                    htmlFor={`activity-name-${index}`}
-                    className="block text-gray-700"
-                  >
-                    Activity Name
-                  </label>
-                  <input
-                    type="text"
-                    id={`activity-name-${index}`}
-                    name="name"
-                    value={activity.name}
-                    onChange={(e) => handleActivityChange(index, e)}
-                    className="w-full p-2 border rounded"
-                    required
-                  />
-                </div>
-                <div>
-                  <label
-                    htmlFor={`activity-description-${index}`}
-                    className="block text-gray-700"
-                  >
-                    Description
-                  </label>
-                  <textarea
-                    id={`activity-description-${index}`}
-                    name="description"
-                    value={activity.description}
-                    onChange={(e) => handleActivityChange(index, e)}
-                    className="w-full p-2 border rounded"
-                    rows="3"
-                    required
-                  />
-                </div>
-                <div>
-                  <label
-                    htmlFor={`activity-datetime-${index}`}
-                    className="block text-gray-700"
-                  >
-                    Date and Time
-                  </label>
-                  <input
-                    type="datetime-local"
-                    id={`activity-datetime-${index}`}
-                    name="datetime"
-                    value={activity.datetime}
-                    onChange={(e) => handleActivityChange(index, e)}
-                    className="w-full p-2 border rounded"
-                    required
-                  />
+                  <h3 className="text-lg font-semibold">{activity.name}</h3>
+                  <p>{activity.description}</p>
+                  <p>{new Date(activity.datetime).toLocaleString()}</p>
                 </div>
               </div>
             ))}
+          </div>
+          <div>
+            <h2 className="text-xl font-semibold mb-2">Add New Activity</h2>
+            <div>
+              <label
+                htmlFor="new-activity-name"
+                className="block text-gray-700"
+              >
+                Activity Name
+              </label>
+              <input
+                type="text"
+                id="new-activity-name"
+                name="name"
+                value={newActivity.name}
+                onChange={handleNewActivityChange}
+                className="w-full p-2 border rounded"
+                required
+              />
+            </div>
+            <div>
+              <label
+                htmlFor="new-activity-description"
+                className="block text-gray-700"
+              >
+                Description
+              </label>
+              <textarea
+                id="new-activity-description"
+                name="description"
+                value={newActivity.description}
+                onChange={handleNewActivityChange}
+                className="w-full p-2 border rounded"
+                rows="3"
+                required
+              />
+            </div>
+            <div>
+              <label
+                htmlFor="new-activity-date"
+                className="block text-gray-700"
+              >
+                Date
+              </label>
+              <input
+                type="date"
+                id="new-activity-date"
+                name="date"
+                value={newActivity.date}
+                onChange={handleNewActivityChange}
+                className="w-full p-2 border rounded"
+                required
+              />
+            </div>
+            <div>
+              <label
+                htmlFor="new-activity-time"
+                className="block text-gray-700"
+              >
+                Time
+              </label>
+              <input
+                type="time"
+                id="new-activity-time"
+                name="time"
+                value={newActivity.time}
+                onChange={handleNewActivityChange}
+                className="w-full p-2 border rounded"
+                required
+              />
+            </div>
             <button
               type="button"
               onClick={handleAddActivity}
