@@ -67,3 +67,8 @@ ion-icon{
   display: block;
   height: 78vh;
 }
+
+
+*{
+  @apply transition-colors duration-200
+}

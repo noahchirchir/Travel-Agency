@@ -32,28 +32,33 @@ function Trips() {
   return (
     <>
       <NavBar />
+      <div className="h-full mb-20">
       <div className="p-8">
-        <h1 className="text-3xl font-bold mb-6">My Trips</h1>
+        <h1 className="text-3xl font-bold mb-6 pl-14">My Trips</h1>
         {error && <p className="text-red-500">{error}</p>}
         {itineraries.length === 0 ? (
           <p>No trips found.</p>
         ) : (
-          <ul>
+          <div className="grid grid-cols-3 gap-4 mt-10 px-10">
             {itineraries.map((itinerary) => (
-              <li key={itinerary.id} className="mb-4">
-                <h2 className="text-xl font-semibold">{itinerary.name}</h2>
-                <p>{itinerary.description}</p>
+              <div
+                key={itinerary.id}
+                className="border border-gray-300 rounded-lg p-4 shadow-md"
+              >
+                <h2 className="text-xl font-semibold mb-2">{itinerary.name}</h2>
+                <p className="text-gray-700 mb-4">{itinerary.description}</p>
                 <Link to={`/itineraries/${itinerary.id}`}>
-                  <button className="bg-blue-500 text-white py-2 px-4 rounded mt-2">
+                  <button className="bg-lime-900 text-white py-2 px-4 rounded mt-2 hover:bg-lime-800 transition">
                     View Details
                   </button>
                 </Link>
-              </li>
+              </div>
             ))}
-          </ul>
+          </div>
         )}
       </div>
-      <Footer/>
+      </div>
+      <Footer />
     </>
   );
 }

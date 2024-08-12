@@ -170,10 +170,29 @@ def create_itinerary():
         user_id=current_user_id
     )
 
+    
+    activities = data.get('activities', [])
+    for activity in activities:
+        try:
+            date_time_str = f"{activity['date']} {activity['time']}"
+            date_time_obj = datetime.strptime(date_time_str, '%Y-%m-%d %H:%M')
+        except (ValueError, KeyError):
+            app.logger.warning('Invalid activity datetime format')
+            return jsonify({'message': 'Invalid activity datetime format. Use YYYY-MM-DD HH:MM format.'}), 400
+        
+        new_activity = Activity(
+            name=activity['name'], 
+            description=activity.get('description'), 
+            datetime=date_time_obj, 
+            itinerary=new_itinerary
+        )
+        db.session.add(new_activity)
+
     db.session.add(new_itinerary)
     db.session.commit()
-    app.logger.info(f'Itinerary {new_itinerary.name} created successfully')
+    app.logger.info(f'Itinerary {new_itinerary.name} created successfully with activities')
     return jsonify({'message': 'Itinerary created successfully'}), 201
+
 
 @app.route('/itineraries', methods=['GET'])
 @jwt_required()

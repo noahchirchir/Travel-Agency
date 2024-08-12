@@ -1,6 +1,6 @@
 import { Link, Outlet } from "react-router-dom";
 import Logo from "../assets/travel-planner-high-resolution-logo-black-transparent (1).svg"
-
+// import DarkMode from "./DarkMode";
 function NavBar() {
   return (
     <>
@@ -37,6 +37,7 @@ function NavBar() {
             Logout
           </Link>
         </ul>
+        {/* <DarkMode /> */}
       </nav>
       <Outlet />
     </>

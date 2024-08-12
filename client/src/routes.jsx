@@ -15,83 +15,95 @@ import BookingForm from "./pages/BookingForm";
 import ErrorPage from "./pages/ErrorPage";
 // import ItineraryPage from "./pages/ItineraryPage";
 import TripDetails from "./pages/TripDetails";
+import EditJournalPage from "./pages/EditJournalPage";
+import EditItinerary from "./pages/EditItinerary";
 
 
 const routes = [
   {
     path: "/",
     element: <GuestHomePage />,
-    errorElement: <ErrorPage />
+    errorElement: <ErrorPage />,
   },
   {
     path: "/home",
     element: <HomePage />,
-    errorElement: <ErrorPage />
+    errorElement: <ErrorPage />,
   },
   {
     path: "/login",
     element: <Login />,
-    errorElement: <ErrorPage />
+    errorElement: <ErrorPage />,
   },
   {
     path: "/register",
     element: <Register />,
-    errorElement: <ErrorPage />
+    errorElement: <ErrorPage />,
   },
   {
     path: "/bookings",
     element: <Booking />,
-    errorElement: <ErrorPage />
+    errorElement: <ErrorPage />,
   },
   {
     path: "/journal",
     element: <Journal />,
-    errorElement: <ErrorPage />
+    errorElement: <ErrorPage />,
   },
   {
-    path: "itinerary",
+    path: "/itinerary",
     element: <Itinerary />,
-    errorElement: <ErrorPage />
+    errorElement: <ErrorPage />,
   },
   {
     path: "/trips",
     element: <Trips />,
-    errorElement: <ErrorPage />
+    errorElement: <ErrorPage />,
   },
   {
     path: "/community",
     element: <Community />,
-    errorElement: <ErrorPage />
+    errorElement: <ErrorPage />,
   },
   {
     path: "/journal/:id",
     element: <JournalPage />,
-    errorElement: <ErrorPage />
+    errorElement: <ErrorPage />,
   },
   {
     path: "/bookings/:id",
     element: <BookingPage />,
-    errorElement: <ErrorPage />
+    errorElement: <ErrorPage />,
   },
   {
     path: "/journal-form",
     element: <JournalForm />,
-    errorElement: <ErrorPage />
+    errorElement: <ErrorPage />,
   },
   {
     path: "/add-itinerary",
     element: <ItineraryForm />,
-    errorElement: <ErrorPage />
+    errorElement: <ErrorPage />,
   },
   {
     path: "/add-booking",
     element: <BookingForm />,
-    errorElement: <ErrorPage />
+    errorElement: <ErrorPage />,
   },
   {
     path: "/itineraries/:id",
     element: <TripDetails />,
-    errorElement: <ErrorPage />
+    errorElement: <ErrorPage />,
+  },
+  {
+    path: "/journals/edit/:id",
+    element: <EditJournalPage />,
+    errorElement: <ErrorPage />,
+  },
+  {
+    path: "/edit-itinerary/:id",
+    element: <EditItinerary />,
+    errorElement: <ErrorPage />,
   },
 ];
 export default routes;
