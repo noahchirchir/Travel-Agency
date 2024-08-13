@@ -1,5 +1,5 @@
 import { useParams, useNavigate } from "react-router-dom";
-import { useEffect, useState } from "react";
+import { useState, useEffect } from "react";
 import NavBar from "../components/NavBar";
 
 function EditJournalPage() {
@@ -7,53 +7,69 @@ function EditJournalPage() {
   const navigate = useNavigate();
   const [journal, setJournal] = useState({
     title: "",
-    entry_date: "",
     content: "",
+    entry_date: "",
   });
-  const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
-    const fetchJournal = async () => {
-      try {
-        const response = await fetch(`http://127.0.0.1:5555/journals/${id}`);
+    const token = localStorage.getItem("access_token");
+
+    fetch(`http://127.0.0.1:5555/journals/${id}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    })
+      .then((response) => {
         if (!response.ok) {
           throw new Error("Failed to fetch journal entry");
         }
-        const data = await response.json();
-        setJournal(data);
-      } catch (error) {
+        return response.json();
+      })
+      .then((data) => {
+        setJournal({
+          title: data.title,
+          content: data.content,
+          entry_date: data.entry_date,
+        });
+      })
+      .catch((error) => {
         setError(error.message);
-      } finally {
+      })
+      .finally(() => {
         setLoading(false);
-      }
-    };
-
-    fetchJournal();
+      });
   }, [id]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setJournal({
-      ...journal,
+    setJournal((prevJournal) => ({
+      ...prevJournal,
       [name]: value,
-    });
+    }));
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    const token = localStorage.getItem("access_token");
+
     fetch(`http://127.0.0.1:5555/journals/${id}`, {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
       },
       body: JSON.stringify(journal),
     })
-      .then(() => {
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error("Failed to update journal entry");
+        }
         navigate(`/journals/${id}`);
       })
       .catch((error) => {
-        setError(error.message);
+        console.error("Error updating journal:", error);
       });
   };
 
@@ -72,7 +88,7 @@ function EditJournalPage() {
         <h1 className="text-3xl font-bold mb-4">Edit Journal Entry</h1>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label htmlFor="title" className="block text-gray-700">
+            <label htmlFor="title" className="block text-lg font-semibold mb-2">
               Title
             </label>
             <input
@@ -81,26 +97,32 @@ function EditJournalPage() {
               name="title"
               value={journal.title}
               onChange={handleChange}
-              className="w-full p-2 border rounded"
+              className="w-full px-3 py-2 border rounded"
               required
             />
           </div>
           <div>
-            <label htmlFor="entry_date" className="block text-gray-700">
-              Entry Date
+            <label
+              htmlFor="entry_date"
+              className="block text-lg font-semibold mb-2"
+            >
+              Date
             </label>
             <input
               type="date"
               id="entry_date"
               name="entry_date"
-              value={journal.entry_date.split("T")[0]} // Format the date value
+              value={journal.entry_date.split("T")[0]} // Format the date input
               onChange={handleChange}
-              className="w-full p-2 border rounded"
+              className="w-full px-3 py-2 border rounded"
               required
             />
           </div>
           <div>
-            <label htmlFor="content" className="block text-gray-700">
+            <label
+              htmlFor="content"
+              className="block text-lg font-semibold mb-2"
+            >
               Content
             </label>
             <textarea
@@ -108,17 +130,26 @@ function EditJournalPage() {
               name="content"
               value={journal.content}
               onChange={handleChange}
-              className="w-full p-2 border rounded"
               rows="6"
+              className="w-full px-3 py-2 border rounded"
               required
             />
           </div>
-          <button
-            type="submit"
-            className="bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-400 transition"
-          >
-            Save Changes
-          </button>
+          <div className="flex justify-between">
+            <button
+              type="submit"
+              className="bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-400 transition"
+            >
+              Save Changes
+            </button>
+            <button
+              type="button"
+              onClick={() => navigate(`/journal/${id}`)}
+              className="bg-gray-500 text-white py-2 px-4 rounded hover:bg-gray-400 transition"
+            >
+              Cancel
+            </button>
+          </div>
         </form>
       </div>
     </>
