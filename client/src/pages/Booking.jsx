@@ -80,7 +80,6 @@ function Booking() {
             <div key={booking.id} className="border p-4 rounded-lg shadow-lg">
               <p className="text-xl font-bold">{booking.booking_details}</p>
               <div className="mt-4 flex space-x-2">
-                {/* edit booking form yet to be created */}
                 <Link to={`/edit-booking/${booking.id}`}> 
                   <button className="bg-lime-900 text-white py-2 px-4 rounded hover:bg-lime-700 transition duration-300 ease-in-out">
                     Edit
