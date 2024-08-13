@@ -1,6 +1,6 @@
 import { useParams, useNavigate } from "react-router-dom";
 import NavBar from "../components/NavBar";
-import { useEffect, useState } from "react";
+import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 
 function JournalPage() {
@@ -11,22 +11,28 @@ function JournalPage() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const fetchJournal = async () => {
-      try {
-        const response = await fetch(`http://127.0.0.1:5555/journals/${id}`);
+    const token = localStorage.getItem("access_token");
+
+    fetch(`http://127.0.0.1:5555/journals/${id}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    })
+      .then((response) => {
         if (!response.ok) {
           throw new Error("Failed to fetch journal entry");
         }
-        const data = await response.json();
+        return response.json();
+      })
+      .then((data) => {
         setJournal(data);
-      } catch (error) {
+      })
+      .catch((error) => {
         setError(error.message);
-      } finally {
+      })
+      .finally(() => {
         setLoading(false);
-      }
-    };
-
-    fetchJournal();
+      });
   }, [id]);
 
   const handleEdit = () => {
@@ -34,10 +40,18 @@ function JournalPage() {
   };
 
   const handleDelete = () => {
+    const token = localStorage.getItem("access_token");
+
     fetch(`http://127.0.0.1:5555/journals/${id}`, {
       method: "DELETE",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
     })
-      .then(() => {
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error("Failed to delete journal entry");
+        }
         navigate("/journals");
       })
       .catch((error) => {
@@ -66,12 +80,12 @@ function JournalPage() {
         <p className="text-lg mb-6">{journal.content}</p>
         <div className="flex space-x-4">
           <Link to={`/journals/edit/${id}`}>
-          <button
-            className="bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-400 transition"
-            onClick={handleEdit}
-          >
-            Edit
-          </button>
+            <button
+              className="bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-400 transition"
+              onClick={handleEdit}
+            >
+              Edit
+            </button>
           </Link>
           <button
             className="bg-red-500 text-white py-2 px-4 rounded hover:bg-red-400 transition"

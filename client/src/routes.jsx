@@ -67,7 +67,7 @@ const routes = [
     errorElement: <ErrorPage />,
   },
   {
-    path: "/journal/:id",
+    path: "/journals/:id",
     element: <JournalPage />,
     errorElement: <ErrorPage />,
   },

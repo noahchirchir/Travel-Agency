@@ -5,32 +5,31 @@ import { useNavigate } from "react-router-dom";
 import Footer from "../components/Footer";
 import NavBar from "../components/NavBar";
 
-function BookingForm () {
+function BookingForm() {
   const navigate = useNavigate();
-  const [activities, setActivities] = useState([]);
   const [itineraries, setItineraries] = useState([]);
+  const [activities, setActivities] = useState([]);
 
   useEffect(() => {
-    const fetchOptions = async () => {
-      try {
-        const [activityResponse, itineraryResponse] = await Promise.all([
-          fetch("http://127.0.0.1:5555/activities"),
-          fetch("http://127.0.0.1:5555/itineraries"),
-        ]);
+    const token = localStorage.getItem("access_token");
 
-        const [activityData, itineraryData] = await Promise.all([
-          activityResponse.json(),
-          itineraryResponse.json(),
-        ]);
+    fetch("http://127.0.0.1:5555/itineraries", {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    })
+      .then((response) => response.json())
+      .then((data) => setItineraries(data))
+      .catch((error) => console.error("Error fetching itineraries:", error));
 
-        setActivities(activityData);
-        setItineraries(itineraryData);
-      } catch (error) {
-        console.error("Error fetching options:", error);
-      }
-    };
-
-    fetchOptions();
+    fetch("http://127.0.0.1:5555/activities", {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    })
+      .then((response) => response.json())
+      .then((data) => setActivities(data))
+      .catch((error) => console.error("Error fetching activities:", error));
   }, []);
 
   const formik = useFormik({
@@ -63,9 +62,7 @@ function BookingForm () {
             alert("Failed to submit booking.");
           }
         })
-        .catch((error) => {
-          console.error("Error:", error);
-        });
+        .catch((error) => console.error("Error submitting booking:", error));
     },
   });
 

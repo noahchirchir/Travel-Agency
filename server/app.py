@@ -408,6 +408,34 @@ def get_all_journal_entries():
         'content': entry.content,
         'entry_date': entry.entry_date.isoformat()
     } for entry in journal_entries]), 200
+    
+@app.route('/journals/<int:id>', methods=['GET'])
+@jwt_required()
+def get_journal_entry(id):
+    current_user_id = get_jwt_identity()
+    entry = TravelJournal.query.get(id)
+
+    if not entry:
+        app.logger.warning(f'Journal entry {id} not found')
+        return jsonify({'message': 'Journal entry not found'}), 404
+
+    app.logger.info(f'Current user ID: {current_user_id}')
+    app.logger.info(f'Entry user ID: {entry.user_id}')
+    app.logger.info(f'Entry shared with users: {[user.id for user in User.query.get(current_user_id).shared_journals]}')
+
+    if entry.user_id != current_user_id and entry not in User.query.get(current_user_id).shared_journals:
+        app.logger.warning(f'Unauthorized access attempt to journal entry {id}')
+        return jsonify({'message': 'Access denied'}), 403
+
+    app.logger.info(f'Fetched journal entry {id}')
+    return jsonify({
+        'id': entry.id,
+        'title': entry.title,
+        'content': entry.content,
+        'entry_date': entry.entry_date.isoformat()
+    }), 200
+
+
 
 @app.route('/journals/<int:id>', methods=['PUT'])
 @jwt_required()
@@ -462,6 +490,23 @@ def get_shared_journals():
         'entry_date': entry.date.isoformat(),
         'user': entry.user.username
     } for entry in shared_entries]), 200
+    
+@app.route('/activities', methods=['GET'])
+@jwt_required()
+def get_all_activities():
+    try:
+        activities = Activity.query.all()
+        activities_list = [{
+            'id': activity.id,
+            'name': activity.name
+        } for activity in activities]
+        
+        app.logger.info('Fetched all activities successfully')
+        return jsonify(activities_list), 200
+    except Exception as e:
+        app.logger.error(f'Error fetching activities: {e}')
+        return jsonify({'message': 'An error occurred', 'error': str(e)}), 500
+
 
 if __name__ == "__main__":
     app.run(port=5555, debug=True)
