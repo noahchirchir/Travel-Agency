@@ -461,17 +461,21 @@ def update_journal_entry(id):
 @app.route('/comments', methods=['GET'])
 @jwt_required()
 def get_all_comments():
-    comments = Comment.query.all()
-    app.logger.info('Fetched all comments')
-    return jsonify([
-        {
-            'id': comment.id,
-            'content': comment.content,
-            'user_id': comment.user_id,
-            'created_at': comment.created_at.isoformat()
-        }
-        for comment in comments
-    ]), 200
+    try:
+        comments = Comment.query.all()
+        app.logger.info('Fetched all comments')
+        return jsonify([
+            {
+                'id': comment.id,
+                'content': comment.content,
+                'user_id': comment.user_id,
+                'created_at': comment.created_at.isoformat()
+            }
+            for comment in comments
+        ]), 200
+    except Exception as e:
+        app.logger.error(f'Error fetching comments: {e}')
+        return jsonify({'message': 'Failed to fetch comments'}), 500
 
 @app.route('/comments/<int:id>', methods=['GET'])
 @jwt_required()
