@@ -1,11 +1,12 @@
 import logging
 from flask import Flask, request, jsonify
-from models import db, Booking, Itinerary, TravelJournal, Activity, User
+from models import db, Booking, Itinerary, TravelJournal, Activity, User, Image, Like, Comment
 from flask_migrate import Migrate
 from flask_bcrypt import Bcrypt
 from flask_jwt_extended import JWTManager, create_access_token, get_jwt_identity, jwt_required, get_jwt
 from datetime import timedelta, datetime
 from flask_cors import CORS
+from werkzeug.utils import secure_filename
 import random
 import os
 from dotenv import load_dotenv
@@ -28,6 +29,8 @@ jwt = JWTManager(app)
 
 migrate = Migrate(app, db)
 db.init_app(app)
+UPLOAD_FOLDER = 'uploads'
+ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
 
 log_formatter = logging.Formatter('%(asctime)s %(levelname)s: %(message)s [in %(pathname)s:%(lineno)d]')
 
@@ -42,7 +45,7 @@ console_handler.setLevel(logging.INFO)
 app.logger.addHandler(file_handler)
 app.logger.addHandler(console_handler)
 app.logger.setLevel(logging.INFO)
-
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 app.logger.info('App startup')
 
 
@@ -93,7 +96,7 @@ def logout():
     app.logger.info('User logged out')
     return jsonify({"success": "Successfully logged out"}), 200
 
-@app.route('/users', methods=['POST'])
+@app.route('/register', methods=['POST'])
 def create_user():
     data = request.get_json()
     new_user = User(username=data['username'], email=data['email'], password=bcrypt.generate_password_hash(data['password']).decode("utf-8"))
@@ -198,7 +201,7 @@ def create_itinerary():
 @jwt_required()
 def get_all_itineraries():
     current_user_id = get_jwt_identity()
-    itineraries = Itinerary.query.all()
+    itineraries = Itinerary.query.filter_by(user_id=current_user_id).all()
     app.logger.info('Fetched all itineraries')
     return jsonify([
         {
@@ -310,7 +313,6 @@ def add_booking():
 
 
 @app.route('/bookings/<int:id>', methods=['GET'])
-
 def get_booking(id):
     booking = Booking.query.get_or_404(id)
     app.logger.info(f'Fetched booking {id}')
@@ -324,6 +326,7 @@ def get_booking(id):
 @app.route('/bookings', methods=['GET'])
 @jwt_required()
 def get_all_bookings():
+    # current_user_id = get_jwt_identity()
     bookings = Booking.query.all()
     app.logger.info(f'Fetched all bookings')
     return jsonify([{
@@ -455,6 +458,68 @@ def update_journal_entry(id):
     app.logger.info(f'Travel journal  updated successfully')
     return jsonify({'message': 'Journal entry updated successfully'}), 200
 
+@app.route('/comments', methods=['POST'])
+@jwt_required()
+def create_comment():
+    data = request.get_json()
+    new_comment = Comment(
+        content=data['content'],
+        user_id=get_jwt_identity(),
+        
+    )
+    db.session.add(new_comment)
+    db.session.commit()
+    app.logger.info(f'Comment by user {get_jwt_identity()} created')
+    return jsonify({'message': 'Comment created successfully'}), 201
+
+@app.route('/comments/<int:id>', methods=['PUT'])
+@jwt_required()
+def update_comment(id):
+    data = request.get_json()
+    comment = Comment.query.get_or_404(id)
+    if comment.user_id != get_jwt_identity():
+        return jsonify({'message': 'Permission denied'}), 403
+    comment.content = data.get('content', comment.content)
+    db.session.commit()
+    app.logger.info(f'Comment {id} updated successfully')
+    return jsonify({'message': 'Comment updated successfully'}), 200
+
+@app.route('/comments/<int:id>', methods=['DELETE'])
+@jwt_required()
+def delete_comment(id):
+    comment = Comment.query.get_or_404(id)
+    if comment.user_id != get_jwt_identity():
+        return jsonify({'message': 'Permission denied'}), 403
+    db.session.delete(comment)
+    db.session.commit()
+    app.logger.info(f'Comment {id} deleted successfully')
+    return jsonify({'message': 'Comment deleted successfully'}), 200
+
+@app.route('/likes', methods=['POST'])
+@jwt_required()
+def create_like():
+    data = request.get_json()
+    existing_like = Like.query.filter_by(user_id=get_jwt_identity(), activity_id=data['activity_id']).first()
+    if existing_like:
+        return jsonify({'message': 'Already liked'}), 400
+    new_like = Like(user_id=get_jwt_identity(), activity_id=data['activity_id'])
+    db.session.add(new_like)
+    db.session.commit()
+    app.logger.info(f'Activity {data["activity_id"]} liked by user {get_jwt_identity()}')
+    return jsonify({'message': 'Like added successfully'}), 201
+
+@app.route('/likes/<int:id>', methods=['DELETE'])
+@jwt_required()
+def delete_like(id):
+    like = Like.query.get_or_404(id)
+    if like.user_id != get_jwt_identity():
+        return jsonify({'message': 'Permission denied'}), 403
+    db.session.delete(like)
+    db.session.commit()
+    app.logger.info(f'Like {id} removed successfully')
+    return jsonify({'message': 'Like removed successfully'}), 200
+
+
 @app.route('/journals/<int:id>', methods=['DELETE'])
 @jwt_required()
 def delete_journal_entry(id):
@@ -506,6 +571,36 @@ def get_all_activities():
     except Exception as e:
         app.logger.error(f'Error fetching activities: {e}')
         return jsonify({'message': 'An error occurred', 'error': str(e)}), 500
+    
+
+@app.route('/uploads', methods=['POST'])
+@jwt_required()
+def upload_image():
+    if 'file' not in request.files:
+        return jsonify({'message': 'No file part'}), 400
+    file = request.files['file']
+    if file.filename == '':
+        return jsonify({'message': 'No selected file'}), 400
+    if file and allowed_file(file.filename):
+        filename = secure_filename(file.filename)
+        file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+        file.save(file_path)
+        
+        new_image = Image(file_path=file_path)
+        db.session.add(new_image)
+        db.session.commit()
+        app.logger.info(f'Image {filename} uploaded successfully by user {get_jwt_identity()}')
+        return jsonify({'message': 'Image uploaded successfully'}), 201
+    return jsonify({'message': 'Invalid file type'}), 400
+
+@app.route('/images/<int:id>', methods=['GET'])
+def get_image(id):
+    image = Image.query.get_or_404(id)
+    return jsonify({'filename': image.filename, 'path': image.path})
+
+def allowed_file(filename):
+    allowed_extensions = {'png', 'jpg', 'jpeg', 'gif'}
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in allowed_extensions
 
 
 if __name__ == "__main__":
