@@ -17,7 +17,7 @@ function HomePage() {
         </div>
 
         <h1 className="text-center text-black text-3xl">
-          🎉 Welcome to the best trip planning experience! 🎉
+          🎉 Welcome to your best trip planning experience! 🎉
         </h1>
         <h2 className="text-center text-black text-2xl italic ">
           What would you like to do today?

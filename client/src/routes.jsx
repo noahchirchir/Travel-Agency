@@ -17,8 +17,9 @@ import ErrorPage from "./pages/ErrorPage";
 import TripDetails from "./pages/TripDetails";
 import EditJournalPage from "./pages/EditJournalPage";
 import EditItinerary from "./pages/EditItinerary";
-import ShareJournal from "./pages/ShareJournal";
+// import ShareJournal from "./pages/ShareJournal";
 import EditBookingForm from "./pages/EditBookingForm";
+import UploadForm from "./pages/UploadForm";
 
 
 const routes = [
@@ -109,7 +110,7 @@ const routes = [
   },
   {
     path: "/add-share-journal",
-    element: <ShareJournal />,
+    element: <UploadForm />,
     errorElement: <ErrorPage />,
   },
   {
