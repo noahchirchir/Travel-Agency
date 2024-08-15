@@ -458,6 +458,34 @@ def update_journal_entry(id):
     app.logger.info(f'Travel journal  updated successfully')
     return jsonify({'message': 'Journal entry updated successfully'}), 200
 
+@app.route('/comments', methods=['GET'])
+@jwt_required()
+def get_all_comments():
+    comments = Comment.query.all()
+    app.logger.info('Fetched all comments')
+    return jsonify([
+        {
+            'id': comment.id,
+            'content': comment.content,
+            'user_id': comment.user_id,
+            'created_at': comment.created_at.isoformat()
+        }
+        for comment in comments
+    ]), 200
+
+@app.route('/comments/<int:id>', methods=['GET'])
+@jwt_required()
+def get_comment(id):
+    comment = Comment.query.get_or_404(id)
+    app.logger.info(f'Fetched comment {id}')
+    return jsonify({
+        'id': comment.id,
+        'content': comment.content,
+        'user_id': comment.user_id,
+        'created_at': comment.created_at.isoformat()
+    }), 200
+
+
 @app.route('/comments', methods=['POST'])
 @jwt_required()
 def create_comment():
@@ -494,6 +522,34 @@ def delete_comment(id):
     db.session.commit()
     app.logger.info(f'Comment {id} deleted successfully')
     return jsonify({'message': 'Comment deleted successfully'}), 200
+
+@app.route('/likes', methods=['GET'])
+@jwt_required()
+def get_all_likes():
+    likes = Like.query.all()
+    app.logger.info('Fetched all likes')
+    return jsonify([
+        {
+            'id': like.id,
+            'user_id': like.user_id,
+            'activity_id': like.activity_id,
+            'created_at': like.created_at.isoformat()
+        }
+        for like in likes
+    ]), 200
+
+@app.route('/likes/<int:id>', methods=['GET'])
+@jwt_required()
+def get_like(id):
+    like = Like.query.get_or_404(id)
+    app.logger.info(f'Fetched like {id}')
+    return jsonify({
+        'id': like.id,
+        'user_id': like.user_id,
+        'activity_id': like.activity_id,
+        'created_at': like.created_at.isoformat()
+    }), 200
+
 
 @app.route('/likes', methods=['POST'])
 @jwt_required()
