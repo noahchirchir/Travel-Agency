@@ -527,20 +527,43 @@ def delete_comment(id):
     app.logger.info(f'Comment {id} deleted successfully')
     return jsonify({'message': 'Comment deleted successfully'}), 200
 
+# @app.route('/likes', methods=['GET'])
+# @jwt_required()
+# def get_all_likes():
+#     likes = Like.query.all()
+#     app.logger.info('Fetched all likes')
+#     return jsonify([
+#         {
+#             'id': like.id,
+#             'user_id': like.user_id,
+#             'activity_id': like.activity_id,
+#             'created_at': like.created_at.isoformat()
+#         }
+#         for like in likes
+#     ]), 200
+
 @app.route('/likes', methods=['GET'])
-@jwt_required()
-def get_all_likes():
-    likes = Like.query.all()
-    app.logger.info('Fetched all likes')
-    return jsonify([
-        {
-            'id': like.id,
-            'user_id': like.user_id,
-            'activity_id': like.activity_id,
-            'created_at': like.created_at.isoformat()
-        }
-        for like in likes
-    ]), 200
+def get_likes():
+    try:
+        # Example: Filtering likes by user or activity, if needed
+        user_id = request.args.get('user_id')
+        activity_id = request.args.get('activity_id')
+
+        if user_id and activity_id:
+            likes = Like.query.filter_by(user_id=user_id, activity_id=activity_id).all()
+        elif user_id:
+            likes = Like.query.filter_by(user_id=user_id).all()
+        elif activity_id:
+            likes = Like.query.filter_by(activity_id=activity_id).all()
+        else:
+            likes = Like.query.all()
+
+        like_list = [like.to_dict() for like in likes]
+
+        return jsonify(like_list), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
 
 @app.route('/likes/<int:id>', methods=['GET'])
 @jwt_required()
@@ -554,19 +577,56 @@ def get_like(id):
         'created_at': like.created_at.isoformat()
     }), 200
 
+@app.route('/likes', methods=['POST'])
+@jwt_required()
+def add_like():
+    current_user = get_jwt_identity()
+    data = request.get_json()
+    activity_id = data.get('activity_id')
+
+    if not activity_id:
+        return jsonify({'message': 'Activity ID is required'}), 400
+    existing_like = Like.query.filter_by(user_id=current_user['id'], activity_id=activity_id).first()
+    if existing_like:
+        return jsonify({'message': 'You have already liked this activity'}), 400
+    new_like = Like(user_id=current_user['id'], activity_id=activity_id)
+    db.session.add(new_like)
+    db.session.commit()
+
+    app.logger.info(f'User {current_user["id"]} liked activity {activity_id}')
+    return jsonify({
+        'id': new_like.id,
+        'user_id': new_like.user_id,
+        'activity_id': new_like.activity_id,
+        'created_at': new_like.created_at.isoformat()
+    }), 201
 
 @app.route('/likes', methods=['POST'])
 @jwt_required()
 def create_like():
+    current_user = get_jwt_identity()
     data = request.get_json()
-    existing_like = Like.query.filter_by(user_id=get_jwt_identity(), activity_id=data['activity_id']).first()
+    activity_id = data.get('activity_id')
+
+    if not activity_id:
+        return jsonify({"msg": "Activity ID is required"}), 400
+
+    # Check if the activity exists
+    activity = Activity.query.get(activity_id)
+    if not activity:
+        return jsonify({"msg": "Activity not found"}), 404
+
+    # Check if the like already exists
+    existing_like = Like.query.filter_by(user_id=current_user['id'], activity_id=activity_id).first()
     if existing_like:
-        return jsonify({'message': 'Already liked'}), 400
-    new_like = Like(user_id=get_jwt_identity(), activity_id=data['activity_id'])
+        return jsonify({"msg": "You have already liked this activity"}), 400
+
+    # Create and save the new like
+    new_like = Like(user_id=current_user['id'], activity_id=activity_id)
     db.session.add(new_like)
     db.session.commit()
-    app.logger.info(f'Activity {data["activity_id"]} liked by user {get_jwt_identity()}')
-    return jsonify({'message': 'Like added successfully'}), 201
+
+    return jsonify({"msg": "Like created"}), 201
 
 @app.route('/likes/<int:id>', methods=['DELETE'])
 @jwt_required()
@@ -632,6 +692,30 @@ def get_all_activities():
         app.logger.error(f'Error fetching activities: {e}')
         return jsonify({'message': 'An error occurred', 'error': str(e)}), 500
     
+@app.route('/uploads', methods=['GET'])
+def get_images():
+    try:
+        travel_journal_id = request.args.get('travel_journal_id')
+        if travel_journal_id:
+            images = Image.query.filter_by(travel_journal_id=travel_journal_id).all()
+        else:
+            images = Image.query.all()
+
+        image_list = [image.to_dict() for image in images]
+
+        return jsonify(image_list), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+    
+@app.route('/uploads/<int:id>', methods=['GET'])
+def get_image_by_id(id):
+    try:
+        image = Image.query.get_or_404(id) 
+        return jsonify(image.to_dict()), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+    
 
 @app.route('/uploads', methods=['POST'])
 @jwt_required()
@@ -653,10 +737,20 @@ def upload_image():
         return jsonify({'message': 'Image uploaded successfully'}), 201
     return jsonify({'message': 'Invalid file type'}), 400
 
-@app.route('/images/<int:id>', methods=['GET'])
-def get_image(id):
-    image = Image.query.get_or_404(id)
-    return jsonify({'filename': image.filename, 'path': image.path})
+@app.route('/uploads/<int:id>', methods=['GET'])
+@jwt_required()  
+def get_upload_by_id(id):
+    upload = Image.query.get(id)
+    
+    if not upload:
+        return jsonify({"error": "Upload not found"}), 404
+
+    return jsonify({
+        "id": upload.id,
+        "filename": upload.filename,
+        "uploaded_at": upload.uploaded_at,
+    })
+
 
 def allowed_file(filename):
     allowed_extensions = {'png', 'jpg', 'jpeg', 'gif'}
