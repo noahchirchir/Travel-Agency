@@ -1013,3 +1013,4 @@
 2024-08-21 16:51:41,423 INFO: Fetched all comments [in /home/noah/FINAL/Travel-Agency/server/app.py:466]
 2024-08-21 16:51:41,427 INFO: Fetched all users [in /home/noah/FINAL/Travel-Agency/server/app.py:111]
 2024-08-21 16:51:47,098 INFO: Fetched all itineraries [in /home/noah/FINAL/Travel-Agency/server/app.py:205]
+2024-08-21 18:17:47,868 INFO: App startup [in /home/noah/FINAL/Travel-Agency/server/app.py:49]
