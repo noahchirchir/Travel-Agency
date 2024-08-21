@@ -73,7 +73,7 @@ const Community = () => {
   return (
     <>
       <NavBar />
-      <div className="h-full p-8 bg-gray-100">
+      <div className="h-full p-8 bg-gray-100">  
         <div className="flex justify-between items-center mb-5">
           <h1 className="text-3xl font-bold">Community Trips</h1>
           <Link to="/add-share-journal">
