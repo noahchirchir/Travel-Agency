@@ -11,7 +11,7 @@ function Booking() {
   useEffect(() => {
     const token = localStorage.getItem("access_token");
 
-    fetch("https://travel-agency-d5rs.onrender.com", {
+    fetch("https://travel-agency-d5rs.onrender.com/bookings", {
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -36,7 +36,7 @@ function Booking() {
   const handleDelete = (id) => {
     const token = localStorage.getItem("access_token");
 
-    fetch(`https://travel-agency-d5rs.onrender.com/${id}`, {
+    fetch(`https://travel-agency-d5rs.onrender.com/bookings/${id}`, {
       method: "DELETE",
       headers: {
         Authorization: `Bearer ${token}`,

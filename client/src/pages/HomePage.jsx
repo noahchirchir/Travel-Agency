@@ -7,7 +7,7 @@ function HomePage() {
   return (
     <main className="">
       <NavBar />
-      <div className="user m-10 h-96 py-20 px-11 bg-white">
+      <div className="user m-10 h-96 py-20 px-11 bg-white h-screen">
         <div className="flex justify-center items-center mb-10">
           <img
             src="https://i.pinimg.com/564x/68/28/bf/6828bfd781a29146f67726f116fcac91.jpg"
