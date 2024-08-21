@@ -1,8 +1,9 @@
 from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy import MetaData, Column, Integer, String, ForeignKey, Date, DateTime
+from sqlalchemy import MetaData, Column, Integer, String, ForeignKey, Date, Time, DateTime
 from sqlalchemy.orm import relationship, validates
 from sqlalchemy_serializer import SerializerMixin
 from datetime import datetime
+
 
 metadata = MetaData(
     naming_convention={
@@ -22,8 +23,6 @@ class User(db.Model, SerializerMixin):
     
     itineraries = db.relationship('Itinerary', backref='user', lazy=True, cascade='all, delete-orphan')
     travel_journals = db.relationship('TravelJournal', backref='user', lazy=True, cascade='all, delete-orphan')
-    comments = db.relationship('Comment', backref='user', lazy=True, cascade='all, delete-orphan')
-    likes = db.relationship('Like', backref='user', lazy=True, cascade='all, delete-orphan')
 
     serialize_rules = ('-password',)  
     
@@ -42,7 +41,7 @@ class User(db.Model, SerializerMixin):
         assert len(password) >= 6, "Password must be at least 6 characters long"
         return password
     
-    def __repr__(self):
+    def _repr_(self):
         return f"<User(id={self.id}, username='{self.username}', email='{self.email}')>"
 
 class Itinerary(db.Model, SerializerMixin):
@@ -72,7 +71,7 @@ class Itinerary(db.Model, SerializerMixin):
         assert isinstance(date, datetime), f"{key} must be a valid datetime"
         return date
     
-    def __repr__(self):
+    def _repr_(self):
         return f"<Itinerary(id={self.id}, name='{self.name}', start_date='{self.start_date}', end_date='{self.end_date}')>"
 
 class Activity(db.Model, SerializerMixin):
@@ -99,8 +98,10 @@ class Activity(db.Model, SerializerMixin):
         assert isinstance(datetime_value, datetime), "Datetime must be a valid datetime"
         return datetime_value
 
-    def __repr__(self):
+    def _repr_(self):
         return f"<Activity(id={self.id}, name='{self.name}', datetime='{self.datetime.isoformat()}')>"
+
+
 
 class Booking(db.Model, SerializerMixin):
     __tablename__ = 'bookings'
@@ -117,7 +118,7 @@ class Booking(db.Model, SerializerMixin):
         assert len(booking_details) > 0, "Booking details cannot be empty"
         return booking_details
     
-    def __repr__(self):
+    def _repr_(self):
         return f"<Booking(id={self.id}, itinerary_id={self.itinerary_id}, activity_id={self.activity_id}, booking_details='{self.booking_details}')>"
 
 class TravelJournal(db.Model, SerializerMixin):
@@ -132,9 +133,6 @@ class TravelJournal(db.Model, SerializerMixin):
     updated_at = db.Column(DateTime, onupdate=db.func.now())
     
     shared_with = db.relationship('User', secondary='journal_shares', backref='shared_journals')
-    comments = db.relationship('Comment', backref='travel_journal', lazy=True, cascade='all, delete-orphan')
-    likes = db.relationship('Like', backref='travel_journal', lazy=True, cascade='all, delete-orphan')
-    images = db.relationship('Image', backref='travel_journal', lazy=True, cascade='all, delete-orphan')
     
     serialize_rules = ('-user.password',) 
     
@@ -148,61 +146,8 @@ class TravelJournal(db.Model, SerializerMixin):
         assert len(content) > 0, "Content cannot be empty"
         return content
     
-    def __repr__(self):
-        return f"<TravelJournal(id={self.id}, title='{self.title}', date='{self.entry_date}')>"
-
-class Comment(db.Model, SerializerMixin):
-    __tablename__ = 'comments'
-    
-    id = db.Column(db.Integer, primary_key=True)
-    content = db.Column(db.Text, nullable=False)
-    created_at = db.Column(db.DateTime, server_default=db.func.now())
-    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
-    travel_journal_id = db.Column(db.Integer, db.ForeignKey('traveljournals.id'))
-    
-    serialize_rules = ('-user.password',)
-    
-    @validates('content')
-    def validate_content(self, key, content):
-        assert len(content) > 0, "Content cannot be empty"
-        return content
-    
-    def __repr__(self):
-        return f"<Comment(id={self.id}, content='{self.content}')>"
-
-class Like(db.Model):
-    __tablename__ = 'likes'
-    
-    id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
-    travel_journal_id = db.Column(db.Integer, db.ForeignKey('traveljournals.id'), nullable=False)
-    activity_id = db.Column(db.Integer, db.ForeignKey('activities.id'), nullable=False)
-    created_at = db.Column(db.DateTime, server_default=db.func.now())
-    
-    activity = db.relationship('Activity', backref='likes')
-    
-    def __repr__(self):
-        return f"<Like(user_id={self.user_id}, travel_journal_id={self.travel_journal_id})>"
-
-class Image(db.Model, SerializerMixin):
-    __tablename__ = 'images'
-    
-    id = db.Column(db.Integer, primary_key=True)
-    file_path = db.Column(db.String(255), nullable=False)  
-    description = db.Column(db.String(200))  
-    created_at = db.Column(db.DateTime, server_default=db.func.now())
-    travel_journal_id = db.Column(db.Integer, db.ForeignKey('traveljournals.id'))
-    
-    
-    serialize_rules = ('-travel_journal',)
-    
-    @validates('file_path')
-    def validate_file_path(self, key, file_path):
-        assert len(file_path) > 0, "File path cannot be empty"
-        return file_path
-    
-    def __repr__(self):
-        return f"<Image(id={self.id}, file_path='{self.file_path}')>"
+    def _repr_(self):
+        return f"<TravelJournal(id={self.id}, title='{self.title}', date='{self.date}')>"
 
 journal_shares = db.Table('journal_shares',
     db.Column('journal_id', db.Integer, db.ForeignKey('traveljournals.id')),
