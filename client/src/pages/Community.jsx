@@ -3,12 +3,13 @@ import Footer from "../components/Footer";
 import NavBar from "../components/NavBar";
 import { Link } from "react-router-dom";
 
+
 const Community = () => {
   const [loading, setLoading] = useState(true);
   const [comments, setComments] = useState([]);
   const [likes, setLikes] = useState({});
-  const [userNames, setUserNames] = useState({}); // Map to store user names by user ID
-
+  const [userNames, setUserNames] = useState({});
+  
   useEffect(() => {
     const token = localStorage.getItem("access_token");
 
