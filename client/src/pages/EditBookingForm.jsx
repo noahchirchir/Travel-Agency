@@ -16,7 +16,7 @@ function EditBookingForm() {
     const token = localStorage.getItem("access_token");
 
     
-    fetch(`http://127.0.0.1:5555/bookings/${id}`, {
+    fetch(`https://travel-agency-d5rs.onrender.com/bookings/${id}`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -26,7 +26,7 @@ function EditBookingForm() {
       .catch((error) => console.error("Error fetching booking:", error));
 
    
-    fetch("http://127.0.0.1:5555/itineraries", {
+    fetch("https://travel-agency-d5rs.onrender.com/itineraries", {
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -36,7 +36,7 @@ function EditBookingForm() {
       .catch((error) => console.error("Error fetching itineraries:", error));
 
    
-    fetch("http://127.0.0.1:5555/activities", {
+    fetch("https://travel-agency-d5rs.onrender.com/activities", {
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -61,7 +61,7 @@ function EditBookingForm() {
     onSubmit: (values) => {
       const token = localStorage.getItem("access_token");
 
-      fetch(`http://127.0.0.1:5555/bookings/${id}`, {
+      fetch(`https://travel-agency-d5rs.onrender.com/bookings/${id}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",

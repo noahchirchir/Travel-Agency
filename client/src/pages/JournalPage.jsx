@@ -13,7 +13,7 @@ function JournalPage() {
   useEffect(() => {
     const token = localStorage.getItem("access_token");
 
-    fetch(`http://127.0.0.1:5555/journals/${id}`, {
+    fetch(`https://travel-agency-d5rs.onrender.com/journals/${id}`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -42,7 +42,7 @@ function JournalPage() {
   const handleDelete = () => {
     const token = localStorage.getItem("access_token");
 
-    fetch(`http://127.0.0.1:5555/journals/${id}`, {
+    fetch(`https://travel-agency-d5rs.onrender.com/journals/${id}`, {
       method: "DELETE",
       headers: {
         Authorization: `Bearer ${token}`,

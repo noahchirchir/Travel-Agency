@@ -10,7 +10,7 @@ function Itinerary() {
   useEffect(() => {
     const token = localStorage.getItem("access_token");
 
-    fetch("http://127.0.0.1:5555/itineraries", {
+    fetch("https://travel-agency-d5rs.onrender.com/itineraries", {
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -33,7 +33,7 @@ function Itinerary() {
   const handleDelete = (id) => {
     const token = localStorage.getItem("access_token");
 
-    fetch(`http://127.0.0.1:5555/itineraries/${id}`, {
+    fetch(`https://travel-agency-d5rs.onrender.com/itineraries/${id}`, {
       method: "DELETE",
       headers: {
         Authorization: `Bearer ${token}`,

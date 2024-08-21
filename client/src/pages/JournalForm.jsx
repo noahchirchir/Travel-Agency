@@ -24,7 +24,7 @@ function JournalForm() {
       // JWT token
       const token = localStorage.getItem("access_token");
 
-      fetch("http://127.0.0.1:5555/journals", {
+      fetch("https://travel-agency-d5rs.onrender.com/journals", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

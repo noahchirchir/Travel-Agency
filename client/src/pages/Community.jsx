@@ -14,7 +14,7 @@ const Community = () => {
     const token = localStorage.getItem("access_token");
 
     // Fetch comments
-    fetch("http://127.0.0.1:5555/comments", {
+    fetch("https://travel-agency-d5rs.onrender.com/comments", {
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -28,7 +28,7 @@ const Community = () => {
       });
 
     // Fetch likes
-    fetch("http://127.0.0.1:5555/likes", {
+    fetch("https://travel-agency-d5rs.onrender.com/likes", {
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -46,7 +46,7 @@ const Community = () => {
       });
 
     // Fetch user names
-    fetch("http://127.0.0.1:5555/users", {
+    fetch("https://travel-agency-d5rs.onrender.com/users", {
       headers: {
         Authorization: `Bearer ${token}`,
       },

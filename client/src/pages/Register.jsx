@@ -26,7 +26,7 @@ function Register() {
         .required("Required"),
     }),
     onSubmit: (values) => {
-      fetch("http://127.0.0.1:5555/register", {
+      fetch("https://travel-agency-d5rs.onrender.com/register", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

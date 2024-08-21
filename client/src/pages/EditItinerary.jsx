@@ -24,7 +24,7 @@ function EditItinerary() {
   useEffect(() => {
     const token = localStorage.getItem("access_token");
 
-    fetch(`http://127.0.0.1:5555/itineraries/${id}`, {
+    fetch(`https://travel-agency-d5rs.onrender.com/itineraries/${id}`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -53,7 +53,7 @@ function EditItinerary() {
   const handleAddActivity = () => {
     const token = localStorage.getItem("access_token");
 
-    fetch(`http://127.0.0.1:5555/itineraries/${id}/activities`, {
+    fetch(`https://travel-agency-d5rs.onrender.com/itineraries/${id}/activities`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -71,7 +71,7 @@ function EditItinerary() {
             date: "",
             time: "",
           });
-          return fetch(`http://127.0.0.1:5555/itineraries/${id}`, {
+          return fetch(`https://travel-agency-d5rs.onrender.com/itineraries/${id}`, {
             headers: {
               Authorization: `Bearer ${token}`,
             },
@@ -96,7 +96,7 @@ function EditItinerary() {
     e.preventDefault();
     const token = localStorage.getItem("access_token");
 
-    fetch(`http://127.0.0.1:5555/itineraries/${id}`, {
+    fetch(`https://travel-agency-d5rs.onrender.com/itineraries/${id}`, {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",

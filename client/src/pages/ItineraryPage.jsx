@@ -9,7 +9,7 @@ function ItineraryPage() {
   useEffect(() => {
     const token = localStorage.getItem("access_token");
 
-    fetch(`http://127.0.0.1:5555/itineraries/${id}`, {
+    fetch(`https://travel-agency-d5rs.onrender.com/itineraries/${id}`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },

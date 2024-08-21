@@ -13,7 +13,7 @@ function BookingForm() {
   useEffect(() => {
     const token = localStorage.getItem("access_token");
 
-    fetch("http://127.0.0.1:5555/itineraries", {
+    fetch("https://travel-agency-d5rs.onrender.com/itineraries", {
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -22,7 +22,7 @@ function BookingForm() {
       .then((data) => setItineraries(data))
       .catch((error) => console.error("Error fetching itineraries:", error));
 
-    fetch("http://127.0.0.1:5555/activities", {
+    fetch("https://travel-agency-d5rs.onrender.com/activities", {
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -46,7 +46,7 @@ function BookingForm() {
     onSubmit: (values) => {
       const token = localStorage.getItem("access_token");
 
-      fetch("http://127.0.0.1:5555/bookings", {
+      fetch("https://travel-agency-d5rs.onrender.com/bookings", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

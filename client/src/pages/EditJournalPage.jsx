@@ -16,7 +16,7 @@ function EditJournalPage() {
   useEffect(() => {
     const token = localStorage.getItem("access_token");
 
-    fetch(`http://127.0.0.1:5555/journals/${id}`, {
+    fetch(`https://travel-agency-d5rs.onrender.com/journals/${id}`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -54,7 +54,7 @@ function EditJournalPage() {
     e.preventDefault();
     const token = localStorage.getItem("access_token");
 
-    fetch(`http://127.0.0.1:5555/journals/${id}`, {
+    fetch(`https://travel-agency-d5rs.onrender.com/journals/${id}`, {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",

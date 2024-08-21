@@ -15,7 +15,7 @@ const uploadImage = (file) => {
   const formData = new FormData();
   formData.append("file", file);
 
-  return fetch("http://127.0.0.1:5555/uploads", {
+  return fetch("https://travel-agency-d5rs.onrender.com/uploads", {
     method: "POST",
     body: formData,
     headers: {
@@ -33,7 +33,7 @@ const uploadImage = (file) => {
 
 // Function to post a comment
 const postComment = (comment) => {
-  return fetch("http://127.0.0.1:5555/comments", {
+  return fetch("https://travel-agency-d5rs.onrender.com/comments", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
